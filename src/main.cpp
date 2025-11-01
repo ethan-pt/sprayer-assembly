@@ -1,18 +1,42 @@
 #include <Arduino.h>
+#include <ESP32Servo.h>
 
-// put function declarations here:
-int myFunction(int, int);
+Servo sprayer1;
+Servo sprayer2;
+const int sprayer1Pin = 14;
+const int sprayer2Pin = 13;
+const int buttonPin = 12;
+
+const int overuseDelay = 0; // TODO: Update as needed
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+
+  sprayer1.attach(sprayer1Pin, 500, 2400);
+  sprayer2.attach(sprayer2Pin, 500, 2400);
+
+  // make sure servos are in neutral position
+  sprayer1.write(0);
+  sprayer2.write(0);
+
+  pinMode(buttonPin, INPUT_PULLUP);
+}
+
+void spray(int amount) {
+  for (int i = 0; i < amount; i++) {
+    sprayer1.write(45);
+    sprayer2.write(45);
+    delay(250);
+
+    sprayer1.write(0);
+    sprayer2.write(0);
+    delay(250);
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  if (digitalRead(buttonPin) == LOW) {
+    spray(2);
+    delay(overuseDelay);
+  }
 }
