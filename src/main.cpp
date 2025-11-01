@@ -22,8 +22,8 @@ void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
 }
 
-void spray(int amount) {
-  for (int i = 0; i < amount; i++) {
+void cycleSprayer(int cycles) {
+  for (int i = 0; i < cycles; i++) {
     sprayer1.write(45);
     sprayer2.write(45);
     delay(250);
@@ -36,7 +36,7 @@ void spray(int amount) {
 
 void loop() {
   if (digitalRead(buttonPin) == LOW) {
-    spray(2);
+    cycleSprayer(2);
     delay(overuseDelay);
   }
 }
