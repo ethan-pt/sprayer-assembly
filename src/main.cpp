@@ -37,6 +37,11 @@ void cycleSprayer(int cycles) {
 void loop() {
   if (digitalRead(buttonPin) == LOW) {
     cycleSprayer(2);
+
+    while (digitalRead(buttonPin) == LOW) {
+      delay(10);
+    }
+
     delay(overuseDelay);
   }
 }
