@@ -41,34 +41,30 @@ bool connectWiFi(int timeoutSeconds) {
 }
 
 void setup() {
+  // ESP32 Setup
   Serial.begin(115200);
-
   delay(2500); // Gives Serial monitor time to connect or something
-  
   Serial.println("\n\n««Starting ESP32»»");
 
   // Connect to wifi
   Serial.print("\n\nConnecting to WiFi.");
 
   bool wifiConnected = connectWiFi(30);
-
   if (!wifiConnected) {
     delay(2000);
     Serial.print("\nRetrying WiFi connection once.");
     wifiConnected = connectWiFi(30);
   }
-
   if (!wifiConnected) {
     Serial.print("Rebooting in 5 seconds.");
     delay(5000);
     esp_restart(); // Hardware reboot
   }
 
+  // Connect hardware
   sprayer1.attach(sprayer1Pin, 500, 2400);
   sprayer2.attach(sprayer2Pin, 500, 2400);
-
-  // make sure servos are in neutral position
-  sprayer1.write(0);
+  sprayer1.write(0); // make sure servos are in neutral position
   sprayer2.write(0);
 
   pinMode(buttonPin, INPUT_PULLUP);
