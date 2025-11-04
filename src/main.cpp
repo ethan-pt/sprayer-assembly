@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include <WiFi.h>
+#include "credentials.h"
+
 
 Servo sprayer1;
 Servo sprayer2;
@@ -9,8 +12,57 @@ const int buttonPin = 12;
 
 const int overuseDelay = 0; // TODO: Update as needed
 
+
+bool connectWiFi(int timeoutSeconds) {
+  WiFi.mode(WIFI_STA);
+  WiFi.persistent(true);
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  int attempts = 0;
+  int maxAttempts = timeoutSeconds * 2;
+  
+  while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nConnection successful!");
+
+    return true;
+  } else {
+    Serial.print("\nConnection failed with error ");
+    Serial.print(WiFi.status());
+
+    return false;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
+
+  delay(2500); // Gives Serial monitor time to connect or something
+  
+  Serial.println("\n\n««Starting ESP32»»");
+
+  // Connect to wifi
+  Serial.print("\n\nConnecting to WiFi.");
+
+  bool wifiConnected = connectWiFi(30);
+
+  if (!wifiConnected) {
+    delay(2000);
+    Serial.print("\nRetrying WiFi connection once.");
+    wifiConnected = connectWiFi(30);
+  }
+
+  if (!wifiConnected) {
+    Serial.print("Rebooting in 5 seconds.");
+    delay(5000);
+    esp_restart(); // Hardware reboot
+  }
 
   sprayer1.attach(sprayer1Pin, 500, 2400);
   sprayer2.attach(sprayer2Pin, 500, 2400);
