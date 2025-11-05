@@ -68,6 +68,8 @@ void setup() {
   sprayer2.write(0);
 
   pinMode(buttonPin, INPUT_PULLUP);
+
+  Serial.println("\nSetup complete!\nBeginning loop");
 }
 
 void cycleSprayer(int cycles) {
