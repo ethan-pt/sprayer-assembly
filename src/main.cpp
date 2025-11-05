@@ -85,6 +85,7 @@ void cycleSprayer(int cycles) {
 }
 
 void loop() {
+  // WiFi reconnection handler
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected! Attempting reconnect.");
 
@@ -95,6 +96,7 @@ void loop() {
     }
   }
 
+  // Button press handler
   if (digitalRead(buttonPin) == LOW) {
     cycleSprayer(2);
 
