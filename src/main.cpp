@@ -85,6 +85,16 @@ void cycleSprayer(int cycles) {
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected! Attempting reconnect.");
+
+    if (!connectWiFi(15)) {
+      Serial.println("Reconnection failed. Rebooting in 5 seconds.");
+      delay(5000);
+      esp_restart();
+    }
+  }
+
   if (digitalRead(buttonPin) == LOW) {
     cycleSprayer(2);
 
