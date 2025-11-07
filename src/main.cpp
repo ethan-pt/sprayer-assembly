@@ -1,7 +1,10 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 #include "credentials.h"
+#include "apiSecrets.h"
 
 
 Servo sprayer1;
@@ -9,6 +12,9 @@ Servo sprayer2;
 const int sprayer1Pin = 14;
 const int sprayer2Pin = 13;
 const int buttonPin = 12;
+
+const char* apiPath = "/api/v1/dispense/request";
+const int requestTimeout = 15000; // TODO: Update as needed
 
 const int overuseDelay = 0; // TODO: Update as needed
 
@@ -72,6 +78,70 @@ void setup() {
   Serial.println("\nSetup complete!\nBeginning loop");
 }
 
+bool requestSprayPermission() {
+  if (WiFi.status() != WL_CONNECTED) {
+    return false;
+  }
+
+  String serverUrl = String("http://") + SERVER_IP + ":" SERVER_PORT + apiPath;
+
+  HTTPClient http;
+  http.begin(serverUrl);
+  http.setTimeout(requestTimeout);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-API-Key", API_KEY);
+
+  // Create and send JSON payload
+  StaticJsonDocument<200> requestDoc;
+  requestDoc["device_id"] = DEVICE_ID;
+
+  String requestBody;
+  serializeJson(requestDoc, requestBody);
+
+  int httpResponseCode = http.POST(requestBody);
+
+  Serial.println("Sending request to server.");
+
+  // Handle failed reponse errors
+  if (httpResponseCode != 200) {
+    Serial.print("\nHTTP Error: ");
+    Serial.print(httpResponseCode);
+
+    if (httpResponseCode == 401) {
+      Serial.print("  (Authentication failed)");
+    }
+
+    if (httpResponseCode == -11) {
+      Serial.println("  (Request timed out)");
+    }
+
+    http.end();
+    return false;
+  }
+
+  String response = http.getString();
+  StaticJsonDocument<200> responseDoc;
+
+  // Handle successful response errors
+  DeserializationError error = deserializeJson(responseDoc, response);
+  if (error) {
+    Serial.print("\nThere was a problem parsing the response: ");
+    Serial.print(error.c_str());
+    http.end();
+    return false;
+  }
+
+  if (!responseDoc.containsKey("allowed")) {
+    Serial.println("Error: \"allowed\" key not found in response object.");
+    http.end();
+    return false;
+  }
+
+  bool allowed = responseDoc["allowed"];
+  http.end();
+  return allowed;
+}
+
 void cycleSprayer(int cycles) {
   for (int i = 0; i < cycles; i++) {
     sprayer1.write(45);
@@ -98,7 +168,12 @@ void loop() {
 
   // Button press handler
   if (digitalRead(buttonPin) == LOW) {
-    cycleSprayer(2);
+    if (requestSprayPermission()) {
+      Serial.println("Permission granted. Spraying now");
+      cycleSprayer(2);
+    } else {
+      Serial.println("Permission denied.");
+    }
 
     while (digitalRead(buttonPin) == LOW) {
       delay(10);
