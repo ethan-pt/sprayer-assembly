@@ -62,7 +62,7 @@ void setup() {
     wifiConnected = connectWiFi(30);
   }
   if (!wifiConnected) {
-    Serial.println("Rebooting in 5 seconds.\n");
+    Serial.println("\nRebooting in 5 seconds.\n");
     delay(5000);
     esp_restart(); // Hardware reboot
   }
