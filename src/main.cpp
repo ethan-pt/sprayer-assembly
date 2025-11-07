@@ -62,7 +62,7 @@ void setup() {
     wifiConnected = connectWiFi(30);
   }
   if (!wifiConnected) {
-    Serial.print("Rebooting in 5 seconds.");
+    Serial.println("Rebooting in 5 seconds.\n");
     delay(5000);
     esp_restart(); // Hardware reboot
   }
@@ -108,11 +108,13 @@ bool requestSprayPermission() {
     Serial.print(httpResponseCode);
 
     if (httpResponseCode == 401) {
-      Serial.print("  (Authentication failed)");
-    }
-
-    if (httpResponseCode == -11) {
-      Serial.println("  (Request timed out)");
+      Serial.print("  (Authentication failed)\n");
+    } else if (httpResponseCode == -11) {
+      Serial.print("  (Request timed out)\n");
+    } else if (httpResponseCode == -1) {
+      Serial.print("  (Couldn't connect to server)\n");
+    } else {
+      Serial.print("\n");
     }
 
     http.end();
