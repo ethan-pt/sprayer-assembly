@@ -92,7 +92,7 @@ bool requestSprayPermission() {
   http.addHeader("X-API-Key", API_KEY);
 
   // Create and send JSON payload
-  StaticJsonDocument<200> requestDoc;
+  JsonDocument requestDoc;
   requestDoc["device_id"] = DEVICE_ID;
 
   String requestBody;
@@ -122,7 +122,7 @@ bool requestSprayPermission() {
   }
 
   String response = http.getString();
-  StaticJsonDocument<200> responseDoc;
+  JsonDocument responseDoc;
 
   // Handle successful response errors
   DeserializationError error = deserializeJson(responseDoc, response);
