@@ -21,9 +21,12 @@ const int overuseDelay = 0; // TODO: Update as needed
 
 bool connectWiFi(int timeoutSeconds) {
   WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);
   WiFi.persistent(true);
   WiFi.setAutoReconnect(true);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  delay(3000);
 
   int attempts = 0;
   int maxAttempts = timeoutSeconds * 2;
@@ -36,6 +39,9 @@ bool connectWiFi(int timeoutSeconds) {
 
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("\nConnection successful!");
+    Serial.print("Signal strength (RSSI): ");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm");
 
     return true;
   } else {
@@ -55,11 +61,11 @@ void setup() {
   // Connect to wifi
   Serial.print("\n\nConnecting to WiFi.");
 
-  bool wifiConnected = connectWiFi(30);
+  bool wifiConnected = connectWiFi(60);
   if (!wifiConnected) {
     delay(2000);
     Serial.print("\nRetrying WiFi connection once.");
-    wifiConnected = connectWiFi(30);
+    wifiConnected = connectWiFi(60);
   }
   if (!wifiConnected) {
     Serial.println("\nRebooting in 5 seconds.\n");
