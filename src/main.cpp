@@ -87,7 +87,7 @@ void setup() {
 
   pinMode(buttonPin, INPUT_PULLUP);
 
-  Serial.println("\nSetup complete!\nBeginning loop");
+  Serial.println("\nSetup complete!\nBeginning loop\n");
 }
 
 bool requestSprayPermission() {
