@@ -18,16 +18,10 @@ const int requestTimeout = 15000; // TODO: Update as needed
 
 const int overuseDelay = 0; // TODO: Update as needed
 
+const bool wifiBypass = true; // TODO: Set to false when done testing :)
+
 
 bool connectWiFi(int timeoutSeconds) {
-  WiFi.mode(WIFI_STA);
-  WiFi.setSleep(false);
-  WiFi.persistent(true);
-  WiFi.setAutoReconnect(true);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  delay(3000);
-
   int attempts = 0;
   int maxAttempts = timeoutSeconds * 2;
   
@@ -58,19 +52,31 @@ void setup() {
   delay(2500); // Gives Serial monitor time to connect or something
   Serial.println("\n\n««Starting ESP32»»");
 
-  // Connect to wifi
-  Serial.print("\n\nConnecting to WiFi.");
+  if (wifiBypass) {
+    Serial.println("\n\nWiFi bypass mode is ON. Skipping WiFi connection");
+  } else {
+    WiFi.mode(WIFI_STA);
+    WiFi.setSleep(false);
+    WiFi.persistent(true);
+    WiFi.setAutoReconnect(true);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  bool wifiConnected = connectWiFi(60);
-  if (!wifiConnected) {
-    delay(2000);
-    Serial.print("\nRetrying WiFi connection once.");
-    wifiConnected = connectWiFi(60);
-  }
-  if (!wifiConnected) {
-    Serial.println("\nRebooting in 5 seconds.\n");
-    delay(5000);
-    esp_restart(); // Hardware reboot
+    delay(3000);
+
+    // Connect to wifi
+    Serial.print("\n\nConnecting to WiFi.");
+  
+    bool wifiConnected = connectWiFi(60);
+    if (!wifiConnected) {
+      delay(2000);
+      Serial.print("\nRetrying WiFi connection once.");
+      wifiConnected = connectWiFi(60);
+    }
+    if (!wifiConnected) {
+      Serial.println("\nRebooting in 5 seconds.\n");
+      delay(5000);
+      esp_restart(); // Hardware reboot
+    }
   }
 
   // Connect hardware
@@ -85,7 +91,9 @@ void setup() {
 }
 
 bool requestSprayPermission() {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (wifiBypass) {
+    return true;
+  } else if (WiFi.status() != WL_CONNECTED) {
     return false;
   }
 
@@ -164,7 +172,7 @@ void cycleSprayer(int cycles) {
 
 void loop() {
   // WiFi reconnection handler
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!wifiBypass && WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected! Attempting reconnect.");
 
     if (!connectWiFi(15)) {
