@@ -97,7 +97,7 @@ bool requestSprayPermission() {
     return false;
   }
 
-  String serverUrl = String("http://") + SERVER_IP + ":" SERVER_PORT + apiPath;
+  String serverUrl = String("http://") + SERVER_IP + ":" + String(SERVER_PORT) + apiPath;
 
   HTTPClient http;
   http.begin(serverUrl);
