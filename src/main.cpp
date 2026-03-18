@@ -147,7 +147,7 @@ bool requestSprayPermission() {
     return false;
   }
 
-  if (!responseDoc.containsKey("allowed")) {
+  if (!responseDoc["allowed"].is<bool>()) {
     Serial.println("Error: \"allowed\" key not found in response object.");
     http.end();
     return false;
