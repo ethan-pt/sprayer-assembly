@@ -12,6 +12,8 @@ Servo sprayer2;
 const int sprayer1Pin = 14;
 const int sprayer2Pin = 13;
 const int buttonPin = 12;
+const int redLEDPin = 10;
+const int blueLEDPin = 9;
 
 const char* apiPath = "/api/v1/dispense/request";
 const int requestTimeout = 15000; // TODO: Update as needed
@@ -26,12 +28,17 @@ bool connectWiFi(int timeoutSeconds) {
   int maxAttempts = timeoutSeconds * 2;
   
   while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts) {
+    digitalWrite(redLEDPin, LOW);
     delay(500);
     Serial.print(".");
+    digitalWrite(redLEDPin, HIGH);
     attempts++;
   }
 
   if (WiFi.status() == WL_CONNECTED) {
+    digitalWrite(redLEDPin, LOW);
+    digitalWrite(blueLEDPin, HIGH);
+
     Serial.println("\nConnection successful!");
     Serial.print("Signal strength (RSSI): ");
     Serial.print(WiFi.RSSI());
@@ -52,7 +59,18 @@ void setup() {
   delay(2500); // Gives Serial monitor time to connect or something
   Serial.println("\n\n««Starting ESP32»»");
 
+  // LED Setup
+  pinMode(redLEDPin, OUTPUT);
+  pinMode(blueLEDPin, OUTPUT);
+  digitalWrite(redLEDPin, HIGH);
+  digitalWrite(blueLEDPin, HIGH);
+  delay(3000);
+
+  // WiFi Setup
   if (wifiBypass) {
+    digitalWrite(redLEDPin, LOW);
+    digitalWrite(blueLEDPin, HIGH);
+
     Serial.println("\n\nWiFi bypass mode is ON. Skipping WiFi connection");
   } else {
     WiFi.mode(WIFI_STA);
@@ -173,6 +191,9 @@ void cycleSprayer(int cycles) {
 void loop() {
   // WiFi reconnection handler
   if (!wifiBypass && WiFi.status() != WL_CONNECTED) {
+    digitalWrite(redLEDPin, HIGH);
+    digitalWrite(blueLEDPin, LOW);
+
     Serial.println("WiFi disconnected! Attempting reconnect.");
 
     if (!connectWiFi(15)) {
