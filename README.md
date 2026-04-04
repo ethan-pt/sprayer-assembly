@@ -35,6 +35,7 @@ In practice, it looks for a button press, sends a POST request*, and sprays catn
 For its current purposes, this aspect of the project is largely done, but here are some features I currently plan to add
 
 - [ ] **FIGURE OUT HOW TO ATTACH THE SERVOS TO THE CATNIP BOTTLE SUCH THAT THEY SPRAY IT WHEN ACTUATED** (God I wish I had access to a 3D printer)
+- [ ] Add a heartbeat listener for integration with [my homelab logging project](https://github.com/ethan-pt/logging)
 - [ ] Rebuild with RPi Zero 2 W/RPi camera module (might do, might not. I have other ideas for this and current hardware, so likely not but could be interesting to try, maybe measure differences)
 - [ ] Train my cats to press the button when they want catnip
 - [ ] Add switch to turn on/off
